@@ -121,6 +121,7 @@ const updateChart = function() {
         }
     });
 
+    chart.scrollIntoView();
 };
 
 const initUI = function () {
@@ -143,6 +144,7 @@ const initUI = function () {
         countriesHTML += '<input type="checkbox" name="country[]" value="country-' + i + '" ';
         if (storedData && storedData.country && storedData.country.indexOf(country) != -1) {
             countriesHTML+= 'checked ';
+            submit.disabled = false;
         }
         countriesHTML += 'id="country-' + i + '" data-country="' + country + '" />';
         countriesHTML += '<label for="country-' + i + '">' + country + '</label>';
@@ -193,6 +195,5 @@ fetch(document.body.dataset.data)
     .then(response => response.json())
     .then(data => {
         window.data = data;
-
         initUI();
     });

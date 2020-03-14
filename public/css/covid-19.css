@@ -2,6 +2,9 @@ body {
     margin: 0;
     padding: 0;
 }
+#alignement nav label {
+    display: none;
+}
 #chart {
     width: 95vw;
     height: 95vh;
