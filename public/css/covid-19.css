@@ -2,9 +2,11 @@ body {
     margin: 0;
     padding: 0;
 }
+
 #alignement nav label {
     display: none;
 }
+
 #chart {
     width: 95vw;
     height: 95vh;
@@ -14,15 +16,17 @@ body {
 #countries {
     overflow: hidden;
 }
+
 #countries span {
     float: left;
     width: 300px;
 }
 
-#ui > div,
+#ui>div,
 #ui.ready .loading {
     display: none;
 }
-#ui.ready > div {
+
+#ui.ready>div {
     display: block;
 }

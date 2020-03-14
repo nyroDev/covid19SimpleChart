@@ -7,7 +7,7 @@ const
     submit = document.getElementById('submit'),
     chart = document.getElementById('chart');
 
-const updateChart = function() {
+const updateChart = function () {
     const dataIndexes = {};
     let minIndex = window.data.dates.length;
 
@@ -38,7 +38,7 @@ const updateChart = function() {
     const nbValues = window.data.dates.length - minIndex;
     const categories = [];
     for (i = 1; i <= nbValues; i++) {
-        categories.push('Day '+i);
+        categories.push('Day ' + i);
     }
 
     const chartSeries = [];
@@ -54,13 +54,13 @@ const updateChart = function() {
             type: 'spline'
         },
         title: {
-            text: 'Alignement: '+number.value+' '+serie.value
+            text: 'Alignement: ' + number.value + ' ' + serie.value
         },
         subtitle: {
             text: 'Source: Johns Hopkins University'
         },
         yAxis: {
-            min: 0
+            min: 0,
         },
         xAxis: {
             categories: categories,
@@ -77,7 +77,7 @@ const updateChart = function() {
         tooltip: {
             shared: true,
             useHTML: true,
-            formatter: function() {
+            formatter: function () {
                 const indexCat = categories.indexOf(this.x);
                 if (indexCat == -1) {
                     return '';
@@ -91,12 +91,11 @@ const updateChart = function() {
                         color = hgchart.options.colors[i],
                         curIdx = dataIndexes[indexName].alignIndex + indexCat,
                         date = window.data.dates[curIdx] || '-',
-                        val = dataIndexes[indexName][serie.value][curIdx] || '-'
-                    ;
-                    html.push('<tr style="color: '+color+'">');
-                        html.push('<th>'+date+'</th>');
-                        html.push('<th>'+indexName+'</th>');
-                        html.push('<th>'+val+'</th>');
+                        val = dataIndexes[indexName][serie.value][curIdx] || '-';
+                    html.push('<tr style="color: ' + color + '">');
+                    html.push('<th>' + date + '</th>');
+                    html.push('<th>' + indexName + '</th>');
+                    html.push('<th>' + val + '</th>');
                     html.push('</tr>');
                 });
 
@@ -134,7 +133,7 @@ const initUI = function () {
 
     let seriesHTML = '';
     Object.keys(window.data.series).forEach((id) => {
-        seriesHTML += '<option value="' + id + '"'+(storedData.serie && storedData.serie == id ? 'selected' : '')+'>' + window.data.series[id] + '</option>';
+        seriesHTML += '<option value="' + id + '"' + (storedData.serie && storedData.serie == id ? 'selected' : '') + '>' + window.data.series[id] + '</option>';
     });
     serie.innerHTML = seriesHTML;
 
@@ -143,7 +142,7 @@ const initUI = function () {
         countriesHTML += '<span>';
         countriesHTML += '<input type="checkbox" name="country[]" value="country-' + i + '" ';
         if (storedData && storedData.country && storedData.country.indexOf(country) != -1) {
-            countriesHTML+= 'checked ';
+            countriesHTML += 'checked ';
             submit.disabled = false;
         }
         countriesHTML += 'id="country-' + i + '" data-country="' + country + '" />';

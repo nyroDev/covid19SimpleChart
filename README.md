@@ -7,7 +7,7 @@ git submodule init
 php prepareData.php
 ```
 
-Then point your webserver to the public directory.
+Then point your webserver to the public directory.  
 Prefer the PHP version, it add a cache bursting for the data.json file
 
 All data source is coming from https://github.com/CSSEGISandData/COVID-19
