@@ -1,0 +1,37 @@
+<!doctype html>
+<head>
+    <title>Covide-19 charts</title>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" type="text/css" href="css/covid-19.css" />
+</head>
+<body data-data="data.json?t=TIMING">
+    <form action="" id="ui">
+        <span class="loading">Please wait...</span>
+        <div id="alignement">
+            <label>Alignement</label>
+            <nav>
+                <label for="serie">Data to use</label>
+                <select id="serie" required></select>
+                -
+                <label for="number">Number</label>
+                <input type="number" id="number" value="100" required min="1">
+            </nav>
+        </div>
+        <div>
+            <label>Countries</label>
+            <nav id="countries"></nav>
+        </div>
+        <div>
+            <button type="submit" id="submit" disabled>Submit</button>
+        </div>
+    </form>
+    <div id="chart">
+        Please wait...
+    </div>
+    <script src="https://code.highcharts.com/highcharts.js" defer></script>
+    <script src="https://code.highcharts.com/maps/modules/map.js" defer></script>
+    <script src="js/covid-19.js" defer></script>
+
+    <small><a href="https://github.com/nyroDev/covid19SimpleChart" target="_blank">Source code</a></small>
+</body>

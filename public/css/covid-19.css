@@ -1,0 +1,25 @@
+body {
+    margin: 0;
+    padding: 0;
+}
+#chart {
+    width: 95vw;
+    height: 95vh;
+    margin: 5px auto;
+}
+
+#countries {
+    overflow: hidden;
+}
+#countries span {
+    float: left;
+    width: 300px;
+}
+
+#ui > div,
+#ui.ready .loading {
+    display: none;
+}
+#ui.ready > div {
+    display: block;
+}
