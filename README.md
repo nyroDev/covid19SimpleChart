@@ -4,6 +4,7 @@
 git clone https://github.com/nyroDev/covid19SimpleChart.git
 cd covid19SimpleChart
 git submodule init
+git submodule update
 php prepareData.php
 ```
 
