@@ -2,6 +2,7 @@ const
     storageName = 'covid19',
     ui = document.getElementById('ui'),
     serie = document.getElementById('serie'),
+    serieDraw = document.getElementById('serieDraw'),
     number = document.getElementById('number'),
     countries = document.getElementById('countries'),
     submit = document.getElementById('submit'),
@@ -14,6 +15,7 @@ const updateChart = function () {
 
     const toStore = {
         serie: serie.value,
+        serieDraw: serieDraw.value,
         number: number.value,
         country: []
     };
@@ -53,11 +55,11 @@ const updateChart = function () {
     Object.keys(dataIndexes).forEach((indexName) => {
         chartSeries.push({
             name: indexName,
-            data: dataIndexes[indexName].alignIndex > -1 ? dataIndexes[indexName][serie.value].slice(dataIndexes[indexName].alignIndex) : []
+            data: dataIndexes[indexName].alignIndex > -1 ? dataIndexes[indexName][serieDraw.value].slice(dataIndexes[indexName].alignIndex) : []
         });
         chartSeriesPc.push({
             name: indexName,
-            data: dataIndexes[indexName].alignIndex > -1 ? dataIndexes[indexName][serie.value + '_pc'].slice(dataIndexes[indexName].alignIndex) : []
+            data: dataIndexes[indexName].alignIndex > -1 ? dataIndexes[indexName][serieDraw.value + '_pc'].slice(dataIndexes[indexName].alignIndex) : []
         });
 
         if (false && dataIndexes[indexName].lockdownIndex > -1 && dataIndexes[indexName].lockdownIndex > minIndex) {
@@ -86,18 +88,31 @@ const updateChart = function () {
         const html = [];
         html.push('<table>');
 
+        html.push('<thead>');
+        html.push('<tr>');
+        html.push('<th>Date</th>');
+        html.push('<th>Country</th>');
+        Object.keys(window.data.series).forEach((id) => {
+            html.push('<th>' + window.data.series[id] + '</th>');
+        });
+        html.push('</tr>');
+        html.push('</thead>');
+
         Object.keys(dataIndexes).forEach((indexName, i) => {
             const
                 color = hgchart.options.colors[i],
                 curIdx = dataIndexes[indexName].alignIndex + indexCat,
-                date = window.data.dates[curIdx] || '-',
-                val = dataIndexes[indexName][serie.value][curIdx] || '-',
-                valPc = dataIndexes[indexName][serie.value + '_pc'][curIdx] || '-';
+                date = window.data.dates[curIdx] || '-';
             html.push('<tr style="color: ' + color + '">');
             html.push('<th>' + date + '</th>');
             html.push('<th>' + indexName + '</th>');
-            html.push('<th>' + val + '</th>');
-            html.push('<th>' + valPc + '%</th>');
+
+            Object.keys(window.data.series).forEach((id, name) => {
+                const val = dataIndexes[indexName][id][curIdx] || '-',
+                    valPc = dataIndexes[indexName][id + '_pc'][curIdx] || '-';
+                html.push('<th class="number">' + Highcharts.numberFormat(val, 0) + '<br />' + valPc + '%</th>');
+            });
+
             html.push('</tr>');
         });
 
@@ -111,7 +126,7 @@ const updateChart = function () {
             type: 'spline'
         },
         title: {
-            text: 'Alignement: ' + number.value + ' ' + serie.value
+            text: 'Alignement: ' + number.value + ' ' + serie.value + ', Draw: ' + serieDraw.value
         },
         subtitle: {
             text: 'Source: Johns Hopkins University'
@@ -156,7 +171,7 @@ const updateChart = function () {
             type: 'spline'
         },
         title: {
-            text: 'Alignement: ' + number.value + ' ' + serie.value
+            text: 'Alignement: ' + number.value + ' ' + serie.value + ', Draw: ' + serieDraw.value
         },
         subtitle: {
             text: 'Source: Johns Hopkins University'
@@ -214,17 +229,24 @@ const initUI = function () {
     }
 
     const stored = window.localStorage.getItem(storageName);
-    const storedData = stored ? JSON.parse(stored) : {};
+    const storedData = stored ? JSON.parse(stored) : {
+        serie: 'deaths',
+        number: 15,
+        serieDraw: 'confirmed'
+    };
 
     if (storedData && storedData.number) {
         number.value = storedData.number;
     }
 
     let seriesHTML = '';
+    let seriesDrawHTML = '';
     Object.keys(window.data.series).forEach((id) => {
         seriesHTML += '<option value="' + id + '"' + (storedData.serie && storedData.serie == id ? 'selected' : '') + '>' + window.data.series[id] + '</option>';
+        seriesDrawHTML += '<option value="' + id + '"' + (storedData.serieDraw && storedData.serieDraw == id ? 'selected' : '') + '>' + window.data.series[id] + '</option>';
     });
     serie.innerHTML = seriesHTML;
+    serieDraw.innerHTML = seriesDrawHTML;
 
     let countriesHTML = '';
     Object.keys(window.data.data).forEach((country, i) => {

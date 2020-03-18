@@ -3,7 +3,16 @@ body {
     padding: 0;
 }
 
-#alignement nav label {
+form {
+    margin: 10px;
+}
+
+form>div {
+    margin-bottom: 10px;
+}
+
+#alignement nav label,
+#draw nav label {
     display: none;
 }
 
@@ -30,4 +39,13 @@ body {
 
 #ui.ready>div {
     display: block;
+}
+
+.highcharts-tooltip td,
+.highcharts-tooltip th {
+    vertical-align: top;
+}
+
+.highcharts-tooltip .number {
+    text-align: right;
 }
