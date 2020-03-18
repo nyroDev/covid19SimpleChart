@@ -41,6 +41,17 @@ foreach ($series as $serieName => $serie) {
             }
 
             $data[$indexName][$serieName] = array_map('intval', array_slice($row, $startDateIndex));
+
+            $prevVal = null;
+            $data[$indexName][$serieName.'_pc'] = array_map(function($v) use (&$prevVal) {
+                $pc = 0;
+                if ($prevVal) {
+                    $pc = ($v - $prevVal) / $prevVal;
+                }
+                $prevVal = $v;
+
+                return round($pc * 100, 2);
+            }, $data[$indexName][$serieName]);
         }
         fclose($handle);
     }

@@ -5,7 +5,8 @@ const
     number = document.getElementById('number'),
     countries = document.getElementById('countries'),
     submit = document.getElementById('submit'),
-    chart = document.getElementById('chart');
+    chart = document.getElementById('chart'),
+    chartPc = document.getElementById('chartPc');
 
 const updateChart = function () {
     const dataIndexes = {};
@@ -27,6 +28,12 @@ const updateChart = function () {
                 return v > parseInt(number.value);
             });
 
+            dataIndexes[el.dataset.country].lockdown = window.lockdowns[el.dataset.country] || false;
+            dataIndexes[el.dataset.country].lockdownIndex = -1;
+            if (dataIndexes[el.dataset.country].lockdown) {
+                dataIndexes[el.dataset.country].lockdownIndex = window.data.dates.indexOf(dataIndexes[el.dataset.country].lockdown);
+            }
+
             if (dataIndexes[el.dataset.country].alignIndex > -1) {
                 minIndex = Math.min(minIndex, dataIndexes[el.dataset.country].alignIndex);
             }
@@ -42,12 +49,62 @@ const updateChart = function () {
     }
 
     const chartSeries = [];
+    const chartSeriesPc = [];
     Object.keys(dataIndexes).forEach((indexName) => {
         chartSeries.push({
             name: indexName,
             data: dataIndexes[indexName].alignIndex > -1 ? dataIndexes[indexName][serie.value].slice(dataIndexes[indexName].alignIndex) : []
         });
+        chartSeriesPc.push({
+            name: indexName,
+            data: dataIndexes[indexName].alignIndex > -1 ? dataIndexes[indexName][serie.value + '_pc'].slice(dataIndexes[indexName].alignIndex) : []
+        });
+
+        if (false && dataIndexes[indexName].lockdownIndex > -1 && dataIndexes[indexName].lockdownIndex > minIndex) {
+            const curIndex = dataIndexes[indexName].lockdownIndex - minIndex;
+            chartSeries[chartSeries.length - 1].data[curIndex] = {
+                y: chartSeries[chartSeries.length - 1].data[curIndex],
+                marker: {
+                    radius: 'url(https://www.highcharts.com/samples/graphics/flag-circlepin.svg?' + indexName + ')'
+                }
+            };
+            chartSeriesPc[chartSeriesPc.length - 1].data[curIndex] = {
+                y: chartSeriesPc[chartSeriesPc.length - 1].data[curIndex],
+                marker: {
+                    radius: 'url(https://www.highcharts.com/samples/graphics/flag-circlepin.svg?' + indexName + 'PC)'
+                }
+            };
+        }
     });
+
+    const formatter = function () {
+        const indexCat = categories.indexOf(this.x);
+        if (indexCat == -1) {
+            return '';
+        }
+
+        const html = [];
+        html.push('<table>');
+
+        Object.keys(dataIndexes).forEach((indexName, i) => {
+            const
+                color = hgchart.options.colors[i],
+                curIdx = dataIndexes[indexName].alignIndex + indexCat,
+                date = window.data.dates[curIdx] || '-',
+                val = dataIndexes[indexName][serie.value][curIdx] || '-',
+                valPc = dataIndexes[indexName][serie.value + '_pc'][curIdx] || '-';
+            html.push('<tr style="color: ' + color + '">');
+            html.push('<th>' + date + '</th>');
+            html.push('<th>' + indexName + '</th>');
+            html.push('<th>' + val + '</th>');
+            html.push('<th>' + valPc + '%</th>');
+            html.push('</tr>');
+        });
+
+        html.push('</table>');
+
+        return html.join(' ');
+    };
 
     const hgchart = Highcharts.chart(chart, {
         chart: {
@@ -59,12 +116,12 @@ const updateChart = function () {
         subtitle: {
             text: 'Source: Johns Hopkins University'
         },
-        yAxis: {
-            min: 0,
-        },
         xAxis: {
             categories: categories,
             crosshair: true
+        },
+        yAxis: {
+            min: 0,
         },
         plotOptions: {
             series: {
@@ -77,32 +134,60 @@ const updateChart = function () {
         tooltip: {
             shared: true,
             useHTML: true,
-            formatter: function () {
-                const indexCat = categories.indexOf(this.x);
-                if (indexCat == -1) {
-                    return '';
+            formatter: formatter
+        },
+        responsive: {
+            rules: [{
+                condition: {
+                    maxWidth: 500
+                },
+                chartOptions: {
+                    legend: {
+                        layout: 'horizontal',
+                        align: 'center',
+                        verticalAlign: 'bottom'
+                    }
                 }
-
-                const html = [];
-                html.push('<table>');
-
-                Object.keys(dataIndexes).forEach((indexName, i) => {
-                    const
-                        color = hgchart.options.colors[i],
-                        curIdx = dataIndexes[indexName].alignIndex + indexCat,
-                        date = window.data.dates[curIdx] || '-',
-                        val = dataIndexes[indexName][serie.value][curIdx] || '-';
-                    html.push('<tr style="color: ' + color + '">');
-                    html.push('<th>' + date + '</th>');
-                    html.push('<th>' + indexName + '</th>');
-                    html.push('<th>' + val + '</th>');
-                    html.push('</tr>');
-                });
-
-                html.push('</table>');
-
-                return html.join(' ');
+            }]
+        }
+    });
+    const hgchartPc = Highcharts.chart(chartPc, {
+        chart: {
+            type: 'spline'
+        },
+        title: {
+            text: 'Alignement: ' + number.value + ' ' + serie.value
+        },
+        subtitle: {
+            text: 'Source: Johns Hopkins University'
+        },
+        yAxis: {
+            min: 0,
+            title: {
+                text: 'Percentage'
             },
+            labels: {
+                formatter: function () {
+                    return this.value + '%';
+                }
+            }
+        },
+        xAxis: {
+            categories: categories,
+            crosshair: true
+        },
+        plotOptions: {
+            series: {
+                marker: {
+                    enabled: true
+                }
+            }
+        },
+        series: chartSeriesPc,
+        tooltip: {
+            shared: true,
+            useHTML: true,
+            formatter: formatter
         },
         responsive: {
             rules: [{
@@ -124,6 +209,10 @@ const updateChart = function () {
 };
 
 const initUI = function () {
+    if (!window.lockdowns || !window.data) {
+        return;
+    }
+
     const stored = window.localStorage.getItem(storageName);
     const storedData = stored ? JSON.parse(stored) : {};
 
@@ -189,6 +278,13 @@ const initUI = function () {
         updateChart();
     }
 };
+
+fetch(document.body.dataset.lockdowns)
+    .then(response => response.json())
+    .then(data => {
+        window.lockdowns = data;
+        initUI();
+    });
 
 fetch(document.body.dataset.data)
     .then(response => response.json())
