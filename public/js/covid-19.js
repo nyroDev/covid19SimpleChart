@@ -232,7 +232,7 @@ const initUI = function () {
     const storedData = stored ? JSON.parse(stored) : {
         serie: 'deaths',
         number: 15,
-        serieDraw: 'confirmed'
+        serieDraw: 'deaths'
     };
 
     if (storedData && storedData.number) {
