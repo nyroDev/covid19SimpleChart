@@ -43,7 +43,15 @@ foreach ($series as $serieName => $serie) {
             $data[$indexName][$serieName] = array_map('intval', array_slice($row, $startDateIndex));
 
             $prevVal = null;
-            $data[$indexName][$serieName.'_pc'] = array_map(function($v) use (&$prevVal) {
+            $data[$indexName][$serieName.'_inc'] = array_map(function ($v) use (&$prevVal) {
+                $ret = $v - $prevVal;
+                $prevVal = $v;
+
+                return $ret;
+            }, $data[$indexName][$serieName]);
+
+            $prevVal = null;
+            $data[$indexName][$serieName.'_pc'] = array_map(function ($v) use (&$prevVal) {
                 $pc = 0;
                 if ($prevVal) {
                     $pc = ($v - $prevVal) / $prevVal;

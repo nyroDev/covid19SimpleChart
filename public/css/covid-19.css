@@ -16,10 +16,9 @@ form>div {
     display: none;
 }
 
-#chart,
-#chartPc {
+.chart {
     width: 95vw;
-    height: 45vh;
+    height: 60vh;
     margin: 5px auto;
 }
 

@@ -7,6 +7,7 @@ const
     countries = document.getElementById('countries'),
     submit = document.getElementById('submit'),
     chart = document.getElementById('chart'),
+    chartInc = document.getElementById('chartInc'),
     chartPc = document.getElementById('chartPc');
 
 const updateChart = function () {
@@ -51,11 +52,16 @@ const updateChart = function () {
     }
 
     const chartSeries = [];
+    const chartSeriesInc = [];
     const chartSeriesPc = [];
     Object.keys(dataIndexes).forEach((indexName) => {
         chartSeries.push({
             name: indexName,
             data: dataIndexes[indexName].alignIndex > -1 ? dataIndexes[indexName][serieDraw.value].slice(dataIndexes[indexName].alignIndex) : []
+        });
+        chartSeriesInc.push({
+            name: indexName,
+            data: dataIndexes[indexName].alignIndex > -1 ? dataIndexes[indexName][serieDraw.value + '_inc'].slice(dataIndexes[indexName].alignIndex) : []
         });
         chartSeriesPc.push({
             name: indexName,
@@ -79,57 +85,17 @@ const updateChart = function () {
         }
     });
 
-    const formatter = function () {
-        const indexCat = categories.indexOf(this.x);
-        if (indexCat == -1) {
-            return '';
-        }
+    let hgchart;
 
-        const html = [];
-        html.push('<table>');
-
-        html.push('<thead>');
-        html.push('<tr>');
-        html.push('<th>Date</th>');
-        html.push('<th>Country</th>');
-        Object.keys(window.data.series).forEach((id) => {
-            html.push('<th>' + window.data.series[id] + '</th>');
-        });
-        html.push('</tr>');
-        html.push('</thead>');
-
-        Object.keys(dataIndexes).forEach((indexName, i) => {
-            const
-                color = hgchart.options.colors[i],
-                curIdx = dataIndexes[indexName].alignIndex + indexCat,
-                date = window.data.dates[curIdx] || '-';
-            html.push('<tr style="color: ' + color + '">');
-            html.push('<th>' + date + '</th>');
-            html.push('<th>' + indexName + '</th>');
-
-            Object.keys(window.data.series).forEach((id, name) => {
-                const val = dataIndexes[indexName][id][curIdx] || '-',
-                    valPc = dataIndexes[indexName][id + '_pc'][curIdx] || '-';
-                html.push('<th class="number">' + Highcharts.numberFormat(val, 0) + '<br />' + valPc + '%</th>');
-            });
-
-            html.push('</tr>');
-        });
-
-        html.push('</table>');
-
-        return html.join(' ');
-    };
-
-    const hgchart = Highcharts.chart(chart, {
+    const defaultOptions = {
         chart: {
             type: 'spline'
         },
         title: {
-            text: 'Alignement: ' + number.value + ' ' + serie.value + ', Draw: ' + serieDraw.value
+            text: ''
         },
         subtitle: {
-            text: 'Source: Johns Hopkins University'
+            text: 'Alignement: ' + number.value + ' ' + serie.value + ', Draw: ' + serieDraw.value+' - Source: Johns Hopkins University'
         },
         xAxis: {
             categories: categories,
@@ -145,11 +111,51 @@ const updateChart = function () {
                 }
             }
         },
-        series: chartSeries,
         tooltip: {
             shared: true,
             useHTML: true,
-            formatter: formatter
+            formatter: function () {
+                const indexCat = categories.indexOf(this.x);
+                if (indexCat == -1) {
+                    return '';
+                }
+        
+                const html = [];
+                html.push('<table>');
+        
+                html.push('<thead>');
+                html.push('<tr>');
+                html.push('<th>Date</th>');
+                html.push('<th>Country</th>');
+                Object.keys(window.data.series).forEach((id) => {
+                    html.push('<th>' + window.data.series[id] + '</th>');
+                });
+                html.push('</tr>');
+                html.push('</thead>');
+        
+                Object.keys(dataIndexes).forEach((indexName, i) => {
+                    const
+                        color = hgchart.options.colors[i],
+                        curIdx = dataIndexes[indexName].alignIndex + indexCat,
+                        date = window.data.dates[curIdx] || '-';
+                    html.push('<tr style="color: ' + color + '">');
+                    html.push('<th>' + date + '</th>');
+                    html.push('<th>' + indexName + '</th>');
+        
+                    Object.keys(window.data.series).forEach((id, name) => {
+                        const val = dataIndexes[indexName][id][curIdx] || '-',
+                            valInc = dataIndexes[indexName][id + '_inc'][curIdx] || '-',
+                            valPc = dataIndexes[indexName][id + '_pc'][curIdx] || '-';
+                        html.push('<th class="number">' + Highcharts.numberFormat(val, 0) + '<br />' + valInc + '<br />' + valPc + '%</th>');
+                    });
+        
+                    html.push('</tr>');
+                });
+        
+                html.push('</table>');
+        
+                return html.join(' ');
+            }
         },
         responsive: {
             rules: [{
@@ -165,16 +171,25 @@ const updateChart = function () {
                 }
             }]
         }
-    });
-    const hgchartPc = Highcharts.chart(chartPc, {
-        chart: {
-            type: 'spline'
-        },
+    };
+
+    hgchart = Highcharts.chart(chart, Object.assign({}, defaultOptions, {
         title: {
-            text: 'Alignement: ' + number.value + ' ' + serie.value + ', Draw: ' + serieDraw.value
+            text: 'Draw'
         },
-        subtitle: {
-            text: 'Source: Johns Hopkins University'
+        series: chartSeries,
+    }));
+
+    Highcharts.chart(chartInc, Object.assign({}, defaultOptions, {
+        title: {
+            text: 'Incremental'
+        },
+        series: chartSeriesInc,
+    }));
+
+    Highcharts.chart(chartPc, Object.assign({}, defaultOptions, {
+        title: {
+            text: 'Incremental percentage'
         },
         yAxis: {
             min: 0,
@@ -187,38 +202,8 @@ const updateChart = function () {
                 }
             }
         },
-        xAxis: {
-            categories: categories,
-            crosshair: true
-        },
-        plotOptions: {
-            series: {
-                marker: {
-                    enabled: true
-                }
-            }
-        },
         series: chartSeriesPc,
-        tooltip: {
-            shared: true,
-            useHTML: true,
-            formatter: formatter
-        },
-        responsive: {
-            rules: [{
-                condition: {
-                    maxWidth: 500
-                },
-                chartOptions: {
-                    legend: {
-                        layout: 'horizontal',
-                        align: 'center',
-                        verticalAlign: 'bottom'
-                    }
-                }
-            }]
-        }
-    });
+    }));
 
     chart.scrollIntoView();
 };
