@@ -51,6 +51,9 @@ const updateChart = function () {
         categories.push('Day ' + i);
     }
 
+    console.log(window.data.dates);
+    console.log(dataIndexes);
+
     const chartSeries = [];
     const chartSeriesInc = [];
     const chartSeriesPc = [];

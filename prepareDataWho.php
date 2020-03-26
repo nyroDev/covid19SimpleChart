@@ -18,7 +18,9 @@ $series = [
 
 $data = [];
 
-$initTmp = [];
+$initTmp = [
+    'dates' => [],
+];
 
 foreach($series as $serie) {
     $initTmp[$serie] = [];
@@ -28,13 +30,11 @@ foreach($series as $serie) {
 
 $tmp = $initTmp;
 $tmpCountry = null;
-$headersOk = false;
 
-$headerDates = [];
-$datesOk = false;
+$minDate = '2019-12-31';
+$maxDate = $minDate;
 
 if (false !== ($handle = fopen($source, 'r'))) {
-    $headerDates = null;
     while (false !== ($row = fgetcsv($handle, 10000, ','))) {
         if (!$headersOk) {
             if ($headers == $row) {
@@ -57,11 +57,12 @@ if (false !== ($handle = fopen($source, 'r'))) {
             $datesOk = true;
             echo $tmpCountry.PHP_EOL;
         }
-
-        if (!$datesOk) {
-            $headerDates[] = $line['date'];
+        
+        if ($line['date'] > $maxDate) {
+            $maxDate = $line['date'];
         }
 
+        $tmp['dates'][] = $line['date'];
         $tmp['confirmed_inc'][] = intval($line['new_cases']);
         $tmp['deaths_inc'][] = intval($line['new_deaths']);
         $tmp['confirmed'][] = intval($line['total_cases']);
@@ -81,6 +82,55 @@ if (false !== ($handle = fopen($source, 'r'))) {
 
         $tmpCountry = $country;
     }
+}
+
+// Create correct headerDates
+$minDateDate = new \DateTime($minDate.' 12:00:00');
+$maxDateDate = new \DateTime($maxDate.' 12:00:00');
+$maxDateDate->modify('+1 day');
+
+$daterange = new \DatePeriod($minDateDate, new \DateInterval('P1D') ,$maxDateDate);
+
+$headerDates = [];
+foreach($daterange as $date) {
+    $headerDates[] = $date->format('Y-m-d');
+}
+
+$nbDates = count($headerDates);
+
+// Update all data if needed
+foreach($data as $k => $v) {
+    if (count($v['dates']) != $nbDates) {
+        $tmp = $initTmp;
+        unset($tmp['dates']);
+
+        foreach($tmp as $kk=>$vv) {
+            $curVal = 0;
+            foreach($headerDates as $headerDate) {
+                if (!in_array($headerDate, $v['dates'])) {
+                    // Date is missing, recreate correct values
+                    switch($kk) {
+                        case 'confirmed':
+                        case 'deaths':
+                            $val = $curVal == 0 ? 0 : $v[$kk][$curVal - 1];
+                        break;
+                        case 'confirmed_inc':
+                        case 'confirmed_pc':
+                        case 'deaths_inc':
+                        case 'deaths_pc':
+                            $val = 0;
+                        break;
+                    }
+                } else {
+                    $val = $v[$kk][$curVal];
+                    ++$curVal;
+                }
+                $tmp[$kk][] = $val;
+            }
+        }
+        $data[$k] = $tmp;
+    }
+    unset($data[$k]['dates']);
 }
 
 ksort($data);
