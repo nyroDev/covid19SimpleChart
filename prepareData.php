@@ -1,18 +1,18 @@
 <?php
 
-$filepath = __DIR__.'/COVID-19/csse_covid_19_data/csse_covid_19_time_series/time_series_19-covid-[NAME].csv';
+$filepath = __DIR__.'/COVID-19/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_[NAME]_global.csv';
 
 $series = [
-    'confirmed' => 'Confirmed',
-    'deaths' => 'Deaths',
-    'recovered' => 'Recovered',
+    'confirmed',
+    'recovered',
+    'deaths',
 ];
 
 $startDateIndex = 4;
 
 $data = [];
 
-foreach ($series as $serieName => $serie) {
+foreach ($series as $serie) {
     $file = str_replace('[NAME]', $serie, $filepath);
 
     if (false !== ($handle = fopen($file, 'r'))) {
@@ -40,18 +40,18 @@ foreach ($series as $serieName => $serie) {
                 ];
             }
 
-            $data[$indexName][$serieName] = array_map('intval', array_slice($row, $startDateIndex));
+            $data[$indexName][$serie] = array_map('intval', array_slice($row, $startDateIndex));
 
             $prevVal = null;
-            $data[$indexName][$serieName.'_inc'] = array_map(function ($v) use (&$prevVal) {
+            $data[$indexName][$serie.'_inc'] = array_map(function ($v) use (&$prevVal) {
                 $ret = $v - $prevVal;
                 $prevVal = $v;
 
                 return $ret;
-            }, $data[$indexName][$serieName]);
+            }, $data[$indexName][$serie]);
 
             $prevVal = null;
-            $data[$indexName][$serieName.'_pc'] = array_map(function ($v) use (&$prevVal) {
+            $data[$indexName][$serie.'_pc'] = array_map(function ($v) use (&$prevVal) {
                 $pc = 0;
                 if ($prevVal) {
                     $pc = ($v - $prevVal) / $prevVal;
@@ -59,7 +59,7 @@ foreach ($series as $serieName => $serie) {
                 $prevVal = $v;
 
                 return round($pc * 100, 2);
-            }, $data[$indexName][$serieName]);
+            }, $data[$indexName][$serie]);
         }
         fclose($handle);
     }
