@@ -95,7 +95,7 @@ const updateChart = function () {
             text: ''
         },
         subtitle: {
-            text: 'Alignement: ' + number.value + ' ' + serie.value + ', Draw: ' + serieDraw.value+' - Source: Johns Hopkins University'
+            text: 'Alignement: ' + number.value + ' ' + serie.value + ', Draw: ' + serieDraw.value+' - Source: '+window.data.source
         },
         xAxis: {
             categories: categories,

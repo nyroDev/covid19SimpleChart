@@ -68,6 +68,7 @@ foreach ($series as $serie) {
 ksort($data);
 
 file_put_contents(__DIR__.'/public/data.json', json_encode([
+    'source' => '<a href="https://github.com/CSSEGISandData/COVID-19" target="_blank">Johns Hopkins University</a>',
     'dates' => $headerDates,
     'series' => $series,
     'data' => $data,
