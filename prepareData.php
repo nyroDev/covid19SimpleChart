@@ -3,9 +3,9 @@
 $filepath = __DIR__.'/COVID-19/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_[NAME]_global.csv';
 
 $series = [
-    'confirmed',
-    'recovered',
-    'deaths',
+    'confirmed' => 'confirmed',
+    'recovered' => 'recovered',
+    'deaths' => 'deaths',
 ];
 
 $startDateIndex = 4;
