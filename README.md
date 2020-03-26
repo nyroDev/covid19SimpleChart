@@ -1,16 +1,16 @@
 # covid19SimpleChart
 
-Use WHO data, via Our World in Data
-Prefered, but does not include recovered cases
+Use WHO data, via Our World in Data  
+Prefered, but does not include recovered cases  
 Source: https://ourworldindata.org/coronavirus-source-data
 ```
 cd covid19SimpleChart
 php prepareDataWho.php
 ```
 
-Use Johns Hopkins University
-Have some missing data, include recovered cases
-Source: https://github.com/CSSEGISandData/COVID-19
+Use Johns Hopkins University  
+Have some missing data, include recovered cases  
+Source: https://github.com/CSSEGISandData/COVID-19  
 
 Init
 ```
