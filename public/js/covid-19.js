@@ -149,7 +149,7 @@ const updateChart = function () {
                         const val = dataIndexes[indexName][id][curIdx] || '-',
                             valInc = dataIndexes[indexName][id + '_inc'][curIdx] || '-',
                             valPc = dataIndexes[indexName][id + '_pc'][curIdx] || '-';
-                        html.push('<th class="number">' + Highcharts.numberFormat(val, 0) + '<br />' + valInc + '<br />' + valPc + '%</th>');
+                        html.push('<th class="number">' + Highcharts.numberFormat(val, 0) + '<br />' + Highcharts.numberFormat(valInc, 0) + '<br />' + valPc + '%</th>');
                     });
         
                     html.push('</tr>');
